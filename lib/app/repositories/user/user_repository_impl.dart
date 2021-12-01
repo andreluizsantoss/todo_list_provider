@@ -1,5 +1,6 @@
 import 'package:firebase_auth/firebase_auth.dart';
 import 'package:flutter/services.dart';
+import 'package:google_sign_in/google_sign_in.dart';
 import 'package:todo_list_provider/app/exceptions/auth_exception.dart';
 
 import 'package:todo_list_provider/app/repositories/user/user_repository.dart';
@@ -84,5 +85,54 @@ class UserRepositoryImpl implements UserRepository {
       print(s);
       throw AuthException(message: 'Erro ao resetar senha');
     }
+  }
+
+  @override
+  Future<User?> googleLogin() async {
+    List<String>? loginMethods;
+    try {
+      final googleSignIn = GoogleSignIn();
+      final googleUser = await googleSignIn.signIn();
+      if (googleUser != null) {
+        // ! Verifica se o metódo de login é EMAIL ou GOOGLE
+        // ! Não pode deixar que ocorra isso - Pode ocorrer problemas
+        loginMethods =
+            await _firebaseAuth.fetchSignInMethodsForEmail(googleUser.email);
+        if (loginMethods.contains('password')) {
+          throw AuthException(
+              message:
+                  'Você utilizou o e-mail para cadastro no TodoList, caso tenha esquecido sua senha, por favor clique no botão esqueci minha senha');
+        } else {
+          final googleAuth = await googleUser.authentication;
+          final firebaseCredential = GoogleAuthProvider.credential(
+            accessToken: googleAuth.accessToken,
+            idToken: googleAuth.idToken,
+          );
+          var userCredencial =
+              await _firebaseAuth.signInWithCredential(firebaseCredential);
+          return userCredencial.user;
+        }
+      }
+    } on FirebaseAuthException catch (e, s) {
+      print(e);
+      print(s);
+      // ! Essa exceção é quando vc tenta fazer login com credencial diferente
+      if (e.code == 'account-exists-with-different-credential') {
+        throw AuthException(message: '''
+            Login inválido. Você se registrou no TodoList com os seguintes provedores:
+            ${loginMethods?.join(',')}
+        ''');
+      } else {
+        throw AuthException(message: 'Erro ao realizar login');
+      }
+    }
+  }
+
+  @override
+  Future<void> googleLogout() async {
+    // ! Fazer o logout do metodo de autenticação 
+    // ! Para apareça novamente a tela de escolher o e-mail do Google no celular
+    await GoogleSignIn().signOut();
+    _firebaseAuth.signOut();
   }
 }
