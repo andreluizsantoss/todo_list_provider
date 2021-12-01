@@ -129,7 +129,7 @@ class UserRepositoryImpl implements UserRepository {
   }
 
   @override
-  Future<void> googleLogout() async {
+  Future<void> logout() async {
     // ! Fazer o logout do metodo de autenticação 
     // ! Para apareça novamente a tela de escolher o e-mail do Google no celular
     await GoogleSignIn().signOut();
