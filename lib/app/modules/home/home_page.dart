@@ -5,11 +5,38 @@ import 'package:todo_list_provider/app/modules/home/widget/home_drawer.dart';
 import 'package:todo_list_provider/app/modules/home/widget/home_filters.dart';
 import 'package:todo_list_provider/app/modules/home/widget/home_tasks.dart';
 import 'package:todo_list_provider/app/modules/home/widget/home_week_filter.dart';
+import 'package:todo_list_provider/app/modules/tasks/tasks_module.dart';
 
 import 'widget/home_header.dart';
 
 class HomePage extends StatelessWidget {
   const HomePage({Key? key}) : super(key: key);
+
+  void _goToCreateTask(BuildContext context) {
+    // Navigator.of(context).push(
+    //   MaterialPageRoute(
+    //     builder: (_) => TasksModule().getPage('/task/create', context),
+    //   ),
+    // );
+    // ! Animação de Transição de Abrir a Tela
+    Navigator.of(context).push(
+      PageRouteBuilder(
+        transitionDuration: const Duration(milliseconds: 400),
+        transitionsBuilder: (context, animation, secondyAnimation, child) {
+          animation =
+              CurvedAnimation(parent: animation, curve: Curves.easeInQuad);
+          return ScaleTransition(
+            scale: animation,
+            alignment: Alignment.bottomRight,
+            child: child,
+          );
+        },
+        pageBuilder: (context, animation, secondyAnimation) {
+          return TasksModule().getPage('/task/create', context);
+        },
+      ),
+    );
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -32,7 +59,7 @@ class HomePage extends StatelessWidget {
         ],
       ),
       floatingActionButton: FloatingActionButton(
-        onPressed: () {},
+        onPressed: () => _goToCreateTask(context),
         child: const Icon(Icons.add),
         backgroundColor: context.primaryColor,
       ),

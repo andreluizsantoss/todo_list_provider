@@ -17,7 +17,7 @@ class HomeTasks extends StatelessWidget {
             style: context.titleStyle,
           ),
           Column(
-            children: [
+            children: const [
               Task(),
               Task(),
               Task(),

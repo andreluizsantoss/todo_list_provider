@@ -23,7 +23,7 @@ class _HomeFiltersState extends State<HomeFilters> {
         SingleChildScrollView(
           scrollDirection: Axis.horizontal,
           child: Row(
-            children: [
+            children: const [
               TodoCardFilter(),
               TodoCardFilter(),
               TodoCardFilter(),
