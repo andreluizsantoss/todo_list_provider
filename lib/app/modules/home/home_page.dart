@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
+import 'package:todo_list_provider/app/core/notifier/default_listener_notifier.dart';
 import 'package:todo_list_provider/app/core/ui/theme_extension.dart';
 import 'package:todo_list_provider/app/core/ui/todo_list_icons.dart';
+import 'package:todo_list_provider/app/models/task_filter_enum.dart';
 import 'package:todo_list_provider/app/modules/home/home_controller.dart';
 import 'package:todo_list_provider/app/modules/home/widget/home_drawer.dart';
 import 'package:todo_list_provider/app/modules/home/widget/home_filters.dart';
@@ -11,7 +13,6 @@ import 'package:todo_list_provider/app/modules/tasks/tasks_module.dart';
 import 'widget/home_header.dart';
 
 class HomePage extends StatefulWidget {
-  
   final HomeController _homeController;
 
   const HomePage({
@@ -28,17 +29,30 @@ class _HomePageState extends State<HomePage> {
   @override
   void initState() {
     super.initState();
-    widget._homeController.loadTotalTasks();
+
+    DefaultListenerNotifier(changeNotifier: widget._homeController).listener(
+      context: context,
+      successCallback: (notifier, listenerInstance) {
+        listenerInstance.dispose();
+      },
+    );
+
+    WidgetsBinding.instance?.addPostFrameCallback((timeStamp) {
+      widget._homeController.loadTotalTasks();
+      widget._homeController.findTasks(
+        filter: TaskFilterEnum.today,
+      );
+    });
   }
 
-  void _goToCreateTask(BuildContext context) {
+  Future<void> _goToCreateTask(BuildContext context) async {
     // Navigator.of(context).push(
     //   MaterialPageRoute(
     //     builder: (_) => TasksModule().getPage('/task/create', context),
     //   ),
     // );
     // ! Animação de Transição de Abrir a Tela
-    Navigator.of(context).push(
+    await Navigator.of(context).push(
       PageRouteBuilder(
         transitionDuration: const Duration(milliseconds: 400),
         transitionsBuilder: (context, animation, secondyAnimation, child) {
@@ -55,6 +69,9 @@ class _HomePageState extends State<HomePage> {
         },
       ),
     );
+
+    // ! Atualizar a tela após salvar Nova Task
+    widget._homeController.refreshPage();
   }
 
   @override
