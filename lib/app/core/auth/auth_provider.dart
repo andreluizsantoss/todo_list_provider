@@ -20,7 +20,7 @@ class AuthProvider extends ChangeNotifier {
     // ! Verifica qualquer alteração no usuario
     _firebaseAuth.userChanges().listen((_) => notifyListeners());
     // ! Verifica se o usuario esta logado ou deslogado
-    _firebaseAuth.idTokenChanges().listen((user) async {
+    _firebaseAuth.authStateChanges().listen((user) async {
       if (user != null) {
         // await Future.delayed(const Duration(seconds: 2));
         TodoListNavigator.to.pushNamedAndRemoveUntil('/home', (route) => false);
