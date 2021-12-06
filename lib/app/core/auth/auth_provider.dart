@@ -22,10 +22,10 @@ class AuthProvider extends ChangeNotifier {
     // ! Verifica se o usuario esta logado ou deslogado
     _firebaseAuth.idTokenChanges().listen((user) async {
       if (user != null) {
-        await Future.delayed(const Duration(seconds: 2));
+        // await Future.delayed(const Duration(seconds: 2));
         TodoListNavigator.to.pushNamedAndRemoveUntil('/home', (route) => false);
       } else {
-        await Future.delayed(const Duration(seconds: 2));
+        // await Future.delayed(const Duration(seconds: 2));
         TodoListNavigator.to
             .pushNamedAndRemoveUntil('/login', (route) => false);
       }
